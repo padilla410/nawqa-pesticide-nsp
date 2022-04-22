@@ -39,11 +39,7 @@ vignettes/*.pdf
 .Renviron
 
 # NAQWA pesticide pipeline-specific files
-## ignore `in` data
-/in/
+_targets/*
+*/out/*
+*/in/*
 
-## ignore `out` maps
-/out/
-
-## other files
-*.Rproj
