@@ -19,7 +19,7 @@ library(sf)
 
 
 # Load raster & convert to df -------------------
-r_w001001 <- raster::raster('data/raw/nlcd11pctagco/w001001.adf')
+r_w001001 <- raster::raster('data/raw/nlcd11pctagco/')
 
 # # convert raster to data.frame for remapping the "Value" variable for mapping
 # df_w001001 <- as.data.frame(r_w001001)
@@ -78,18 +78,18 @@ names(ls_dbf_data)[i]
 ## join dbf data to raster, convert raster to data.frame, extract values
 # An interesting surprise, when not using arcpy, it looks like the 
 # VALUE field is called "ID", not "VALUE" in the raster
-r_w001001@data@attributes[[1]] <- dplyr::left_join(r_w001001@data@attributes[[1]],
-                                                   #H_ACEPHATE
-                                                   ls_dbf_data[[i]],
-                                                   by = c('ID' = 'VALUE'))
+# r_w001001@data@attributes[[1]] <- dplyr::left_join(r_w001001@data@attributes[[1]],
+#                                                    #H_ACEPHATE
+#                                                    ls_dbf_data[[i]],
+#                                                    by = c('ID' = 'VALUE'))
+
 # an alternate way?
 r_w001001_alt <- r_w001001
+names(ls_dbf_data[[i]])[1] <- 'ID' # need a check for `ID` as the first column
 r_w001001_alt@data@attributes[[1]] <- ls_dbf_data[[i]]
 r_w001001 <- r_w001001_alt
-names(r_w001001@data@attributes[[1]])[1] <- 'ID'
-raster::writeRaster(r_w001001, filename = 'data/out/tif_H_ACEPHATE_alt.tif', format = 'GTiff')
 
-cellkg2019 <- as.data.frame(r_w001001) %>% 
+cellkg2019 <- as.data.frame(r_w001001_alt) %>%
   dplyr::pull(cellkg2019)
 
 ## Assign levels
@@ -104,9 +104,9 @@ lab_cell_lb_mi2 <- dplyr::case_when(
   fct_relevel(., label)
 
 r_w001001 <- raster::setValues(r_w001001, lab_cell_lb_mi2)
-raster::writeRaster(r_w001001, filename = 'data/out/tif_H_ACEPHATE.tif', format = 'GTiff')
+# raster::writeRaster(r_w001001, filename = 'data/out/tif_H_ACEPHATE.tif', format = 'GTiff')
 
-tmp <- raster::setValues(r_w001001, r_w001001@data@attributes[[1]])
+# tmp <- raster::setValues(r_w001001, r_w001001@data@attributes[[1]])
 
 
 # Plot preparation --------------------------------------------
@@ -132,29 +132,102 @@ label_col <- c(
   '#ffffff'  # white
 )
 
+plt <- 
+  ggplot() +
+  ggspatial::layer_spatial(r_w001001, aes(fill = as.factor(stat(band1)))) +
+  geom_sf(data = state_map, fill = NA, color = '#6e6e6e', lwd = 0.5) +
+  scale_fill_manual(name = ttl_legend, 
+                    labels = label_legend,
+                    values = label_col
+  ) +
+  labs(title = ttl) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5, vjust = -10, face = 'bold')) +
+  theme(legend.position = c(0.20, 0.10),
+        legend.key = element_rect(colour = 'black'))
 
-# Plotting ------------------------------------------------------
+# Raster Making and Plotting ------------------------------------------------------
+
+#' Create NAWQA Pesticide Raster
+#' 
+#' @param 
+#' @param
+#' @param 
+#' @param
+#'
+create_pest_raster <- function(dbf_data, us_raster, bin_df, label_df, cellkg_column){
+  
+  # unlist bin and label data.frames
+  bin <- unlist(bin_df)
+  label <- unlist(label_df)
+  
+  # check that the dbf data.frame has `ID` in the first column
+  names(dbf_data)[1] <- 'ID'
+
+  # replace the default raster data.frame with the pesticide-specific data.frame
+  us_raster@data@attributes[[1]] <- dbf_data
+  
+  cellkg <- as.data.frame(us_raster) %>% dplyr::pull({{cellkg_column}})
+  
+  ## Assign levels
+  lab_cell_lb_mi2 <- dplyr::case_when(
+    is.na(cellkg) ~ "No estimated use",
+    cellkg < bin[2] ~ label[1],
+    cellkg >= bin[2] & cellkg < bin[3] ~ label[2],
+    cellkg >= bin[3] & cellkg < bin[4] ~ label[3],
+    cellkg >= bin[4] & cellkg < bin[5] ~ label[4]
+  ) %>% 
+    as.factor %>% 
+    forcats::fct_relevel(., label)
+  
+  pest_raster <- raster::setValues(us_raster, lab_cell_lb_mi2)
+  
+  return(pest_raster)
+}
+
+#' test
+dbf_data <- foreign::read.dbf(dbf_files[2])#ls_dbf_data[[2]]
+us_raster <- r_w001001 <- raster::raster('data/raw/nlcd11pctagco/')
+bin_df <- ls_bin_data[[2]]
+label_df <- ls_label_data[[2]]
+cellkg_column <- 'cellkg2019'
+
+tmp <- create_pest_raster(dbf_data, us_raster, bin_df, label_df, cellkg_column)
+
 
 #' Create NAWQA Pesticide Map
 #' 
-#' @param raster_object RasterLayer object for plotting
+#' @param pest_raster RasterLayer object for plotting
 #' @param chemical_name name of the the pesticide
 #' @param preliminary logical, are the results preliminary? Default is set to `FALSE`
 #' @param estimate_type chr, does the raster represent the high estimate or the low estimate?
 #' @param label_colors chr vector, vector of HEX colors used to generate map and legend
-#' @param label_names chr vector, vector of break points used to generage legend labels
+#' @param label_names chr vector, vector of break points used to generage legend labels. "No estimated use" is added internally.
 #' 
-create_map <- function(raster_object, # may want to read in `file_path` instead of obj and chem name
-                       chemical_name, 
-                       preliminary = FALSE, estimate_type = c('high', 'low'),
-                       label_colors = c('#fff29e', '#ffb94f', '#d66000', '#873600', '#ffffff'),
-                       label_names) {
+create_map <- function(pest_raster, # may want to read in `file_path` instead of obj and chem name
+                       chemical_name, label_names, plot_yr,
+                       prelim = FALSE, estimate_type = c('High', 'Low'),
+                       label_colors = c('#fff29e', '#ffb94f', '#d66000', '#873600', '#ffffff')
+                       ) {
+  
+  # prep state map
+  state_map <- map('state')
+  state_map <- sf::st_as_sf(map("state", plot = FALSE, fill = TRUE))
+  
+  # prep labels
+  prelim_data <- ifelse(prelim == TRUE, '(Preliminary)', '')
+  
+  ttl <- stringr::str_glue("Estimated Agricultural Use for {chemical_name}, {plot_yr} {prelim_data} \n EPest-{estimate_type}")
+  ttl_legend <- c('Estimated use on \n agricultural land, in \n pounds per square mile')
+  label_legend <- c(label_names, 'No estimated use') %>% unlist() %>% as.vector() # need to remove names to make it work well with `scale_fill_manual`
+  
+  #make pesticide map
   plt <- 
     ggplot() +
-    ggspatial::layer_spatial(raster_object, aes(fill = as.factor(stat(band1)))) +
+    ggspatial::layer_spatial(pest_raster, aes(fill = as.factor(stat(band1)))) +
     geom_sf(data = state_map, fill = NA, color = '#6e6e6e', lwd = 0.5) +
     scale_fill_manual(name = ttl_legend, 
-                      labels = label_names,
+                      labels = label_legend,
                       values = label_colors
     ) +
     labs(title = ttl) +
@@ -163,11 +236,19 @@ create_map <- function(raster_object, # may want to read in `file_path` instead 
     theme(legend.position = c(0.20, 0.10),
           legend.key = element_rect(colour = 'black')) 
   
-  ggsave()
+  return(plt)
+  # ggsave()
   
 }
 
+#' test
+pest_raster <- tmp
+chemical_name <- p_list[2, 2] %>% unlist
+estimate_type <- 'High'
+lab_names <- ls_label_data[[2]]
 
+create_map(pest_raster, chemical_name, estimate_type, plot_yr = '2019',
+           prelim = TRUE, label_names = lab_names)
 
 
 

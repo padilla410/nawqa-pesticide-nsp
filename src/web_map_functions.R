@@ -1,5 +1,5 @@
 generate_pest_vector <- function(file_path) {
-  dbf_files <- list.files(file_path, full.names = T)
+  dbf_files <- list.files(file_path, full.names = F)
   
   stringr::str_match(dbf_files, '(?<=\\_).*?(?=\\.)') %>%
     unique %>%
@@ -15,10 +15,6 @@ read_pest_files <- function(pesticides_of_interest, file_path, col_types) {
   
   return(out)
 }
-
-
-file_path <- 'in/maps/dbf19'
-poi <
 
 read_pest_dbf <- function(pesticides_of_interest, file_path, col_types) {
   out <- list.files(file_path, full.names = T) %>% 
