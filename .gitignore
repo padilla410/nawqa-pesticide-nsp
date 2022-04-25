@@ -41,5 +41,5 @@ vignettes/*.pdf
 # NAQWA pesticide pipeline-specific files
 _targets/*
 */out/*
-*/in/*
+1_fetch/in/*
 
