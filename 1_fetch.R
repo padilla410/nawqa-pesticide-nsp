@@ -56,7 +56,7 @@ p1_targets_list <- list(
   tar_target(
     p1_pest_bin_data,
     readr::read_csv(p1_pest_bin_csv, 
-                    col_types = rep('c', 4), id = 'source'),
+                    col_types = rep('d', 4), id = 'source'),
     pattern = map(p1_pest_bin_csv),
     iteration = 'list'
   ),
