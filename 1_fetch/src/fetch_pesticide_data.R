@@ -42,7 +42,7 @@ list_pest_csv <-function(file_path, poi) {
   
   # track csv files for pesticides of interest
   out <- poi %>%
-    map_chr(~ grep(paste("(\\.", .x, "\\.)", sep = ""),
+    purrr::map_chr(~ grep(paste("(\\.", .x, "\\.)", sep = ""),
                csv_files, value = TRUE))
 
   return(out)

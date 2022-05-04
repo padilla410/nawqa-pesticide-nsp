@@ -1,40 +1,72 @@
 source('1_fetch/src/fetch_pesticide_data.R')
 
 p1_targets_list <- list(
+  # Track data -----------------------
   tar_target(
     p1_pest_of_interest,
     generate_pest_vector(file_path = '1_fetch/in/maps/dbf19')
   ),
   
   # Track changes in high estimate dbf files
-  tar_target(
+  tar_files(
     p1_pest_hi_dbf,
-    list_pest_dbf(file_path = '1_fetch/in/maps/dbf19', 
-                  est_type = 'High'),
-    format = 'file'
+    list_pest_dbf(file_path = '1_fetch/in/maps/dbf19',
+                  est_type = 'High')
   ),
   
   # Track changes in low estimate dbf files
-  tar_target(
+  tar_files(
     p1_pest_lo_dbf,
     list_pest_dbf(file_path = '1_fetch/in/maps/dbf19', 
-                  est_type = 'Low'),
-    format = 'file'
+                  est_type = 'Low')
   ),
   
   # Track changes in pesticide bins for pesticides of interest
-  tar_target(
+  tar_files(
     p1_pest_bin_csv,
     list_pest_csv(file_path = '1_fetch/in/maps/bins', 
-                  poi = p1_pest_of_interest),
-    format = 'file'
+                  poi = p1_pest_of_interest)
   ),
-  
+
   # Track changes in pesticide labels for pesticides of interest
-  tar_target(
+  tar_files(
     p1_pest_label_csv,
     list_pest_csv(file_path = '1_fetch/in/maps/labels', 
-                  poi = p1_pest_of_interest),
-    format = 'file'
+                  poi = p1_pest_of_interest)
+  ),
+  
+  # Load data -----------------------
+  # Load dbfs for pesticides of interest - high estimates
+  tar_target(
+    p1_pest_hi_data,
+    foreign::read.dbf(file = p1_pest_hi_dbf),
+    pattern = map(p1_pest_hi_dbf),
+    iteration = 'list'
+  ),
+  
+  # Load dbfs for pesticides of interest - low estimates
+  tar_target(
+    p1_pest_lo_data,
+    foreign::read.dbf(file = p1_pest_lo_dbf),
+    pattern = map(p1_pest_lo_dbf),
+    iteration = 'list'
+  ),
+  
+  # Load bins for pesticides of interest
+  tar_target(
+    p1_pest_bin_data,
+    readr::read_csv(p1_pest_bin_csv, 
+                    col_types = rep('c', 4), id = 'source'),
+    pattern = map(p1_pest_bin_csv),
+    iteration = 'list'
+  ),
+  
+  # Load labels for pesticides of interest
+  tar_target(
+    p1_pest_label_data,
+    readr::read_csv(p1_pest_label_csv, 
+                    col_types = rep('c', 4), id = 'source'),
+    pattern = map(p1_pest_label_csv),
+    iteration = 'list'
   )
 )
