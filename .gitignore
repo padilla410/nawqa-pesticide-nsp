@@ -42,5 +42,5 @@ vignettes/*.pdf
 _targets
 */out/*
 1_fetch/in/*
-!*/*/*/.placeholder
+!/1_fetch/in/maps/*.placeholder
 
