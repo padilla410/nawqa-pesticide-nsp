@@ -42,4 +42,5 @@ vignettes/*.pdf
 _targets
 */out/*
 1_fetch/in/*
+!*/*/.placeholder
 
