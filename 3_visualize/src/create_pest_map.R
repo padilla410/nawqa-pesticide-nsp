@@ -1,25 +1,27 @@
 #' Create NAWQA Pesticide Map
 #' 
-#' @param pest_raster RasterLayer object for plotting
+#' @param pest_raster_path chr, full path to a RasterLayer object for plotting
 #' @param chemical_name name of the the pesticide
 #' @param preliminary logical, are the results preliminary? Default is set to `FALSE`
 #' @param estimate_type chr, does the raster represent the high estimate or the low estimate?
 #' @param label_colors chr vector, vector of HEX colors used to generate map and legend
-#' @param label_names chr vector, vector of break points used to generage legend labels. "No estimated use" is added internally.
+#' @param label_names chr vector, vector of break points used to generate legend labels. "No estimated use" is added internally.
 #' 
-create_map <- function(pest_raster, # may want to read in `file_path` instead of obj and chem name
+create_pest_map <- function(pest_raster_path, # may want to read in `file_path` instead of obj and chem name
                        chemical_name, label_names, plot_yr,
                        prelim = FALSE, estimate_type = c('High', 'Low'),
                        label_colors = c('#fff29e', '#ffb94f', '#d66000', '#873600', '#ffffff')
 ) {
   
+  # prep raster
+  pest_raster <- raster::raster(pest_raster_path)
+  
   # prep state map
-  state_map <- map('state')
-  state_map <- sf::st_as_sf(map("state", plot = FALSE, fill = TRUE))
+  state_map <- maps::map('state')
+  state_map <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
   
   # prep labels
   prelim_data <- ifelse(prelim == TRUE, '(Preliminary)', '')
-  
   ttl <- stringr::str_glue("Estimated Agricultural Use for {chemical_name}, {plot_yr} {prelim_data} \n EPest-{estimate_type}")
   ttl_legend <- c('Estimated use on \n agricultural land, in \n pounds per square mile')
   label_legend <- c(label_names, 'No estimated use') %>% unlist() %>% as.vector() # need to remove names to make it work well with `scale_fill_manual`
