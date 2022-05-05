@@ -10,15 +10,13 @@ p1_targets_list <- list(
   # Track changes in high estimate dbf files
   tar_files(
     p1_pest_hi_dbf,
-    list_pest_dbf(file_path = path_dbfs,
-                  est_type = 'High')
+    list.files(path_dbfs, full.names = T, pattern = 'H_')
   ),
   
   # Track changes in low estimate dbf files
   tar_files(
     p1_pest_lo_dbf,
-    list_pest_dbf(file_path = path_dbfs, 
-                  est_type = 'Low')
+    list.files(path_dbfs, full.names = T, pattern = 'L_')
   ),
   
   # Track changes in pesticide bins for pesticides of interest

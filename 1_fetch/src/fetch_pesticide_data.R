@@ -10,25 +10,25 @@ generate_pest_vector <- function(file_path) {
     as.vector
 }
 
-#' Generate a vector of pesticide dbf file names based on a subfolder
-#' 
-#' @param file_path chr, file path of the subfolder that contains the pesticide files
-#' @param est_type chr, a filter to select `High` or `Low` pesticide estimates
-#'
-list_pest_dbf <-function(file_path, est_type = c('High', 'Low')) {
-  
-  # Check
-  if(!(est_type %in% c('High', 'Low'))) stop('`est_type` is not specified correctly')
-  
-  # build regex expression based on estimate type
-  regex_filter <- ifelse(est_type == 'High', '(?:/H_)', '(?:/L_)')
-  
-  # select files that match estimate type
-  dbf_files <- list.files(file_path, full.names = T) %>% 
-    stringr::str_subset(regex_filter)
-  
-  return(dbf_files)
-}
+#' #' Generate a vector of pesticide dbf file names based on a subfolder
+#' #' 
+#' #' @param file_path chr, file path of the subfolder that contains the pesticide files
+#' #' @param est_type chr, a filter to select `High` or `Low` pesticide estimates
+#' #'
+#' list_pest_dbf <-function(file_path, est_type = c('High', 'Low')) {
+#'   
+#'   # Check
+#'   if(!(est_type %in% c('High', 'Low'))) stop('`est_type` is not specified correctly')
+#'   
+#'   # build regex expression based on estimate type
+#'   regex_filter <- ifelse(est_type == 'High', '(?:/H_)', '(?:/L_)')
+#'   
+#'   # select files that match estimate type
+#'   dbf_files <- list.files(file_path, full.names = T) %>% 
+#'     stringr::str_subset(regex_filter)
+#'   
+#'   return(dbf_files)
+#' }
 
 #' Generate a vector of pesticide csv file names based on a subfolder
 #' 
