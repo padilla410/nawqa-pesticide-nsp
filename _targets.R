@@ -2,23 +2,11 @@
 library(targets)
 library(tarchetypes)
 
-# wrangling dbf and csv files
-library(dplyr)
-library(readr)
-library(stringr)
-library(purrr)
-
-# working with rasters
-library(raster)
-library(foreign)
-
-# plotting
-library(forcats)
-library(ggplot2)
-library(ggspatial)
-library(maps)
-library(glue)
-library(sf)
+tar_option_set(packages = c(
+  'dplyr', 'readr', 'stringr', 'purrr',                   # wrangling dbf and csv files
+  'raster', 'foreign',                                    # working with rasters
+  'forcats', 'ggplot2', 'ggspatial', 'maps', 'glue', 'sf' # plotting
+))
 
 # setting options
 options(tidyverse.quiet = TRUE)
