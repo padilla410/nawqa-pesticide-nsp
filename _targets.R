@@ -3,9 +3,9 @@ library(targets)
 library(tarchetypes)
 
 tar_option_set(packages = c(
-  'dplyr', 'readr', 'stringr', 'purrr',                   # wrangling dbf and csv files
-  'raster', 'foreign',                                    # working with rasters
-  'forcats', 'ggplot2', 'ggspatial', 'maps', 'glue', 'sf' # plotting
+  'dplyr', 'readr', 'stringr', 'purrr',                   # wrangle dbf and csv files
+  'raster', 'foreign',                                    # work with rasters
+  'forcats', 'ggplot2', 'ggspatial', 'maps', 'glue', 'sf' # plot
 ))
 
 # setting options
