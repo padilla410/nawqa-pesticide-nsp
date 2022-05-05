@@ -1,5 +1,10 @@
 source('1_fetch/src/fetch_pesticide_data.R')
 
+# define input file paths
+path_dbfs <- c('1_fetch/in/maps/dbf19')
+path_bins <- c('1_fetch/in/maps/bins')
+path_labels <- c('1_fetch/in/maps/labels')
+
 p1_targets_list <- list(
   # Track data -----------------------
   tar_target(
@@ -8,19 +13,19 @@ p1_targets_list <- list(
   ),
   
   # Track changes in high estimate dbf files
-  tar_files(
+  tar_files_input(
     p1_pest_hi_dbf,
     list.files(path_dbfs, full.names = T, pattern = 'H_')
   ),
   
   # Track changes in low estimate dbf files
-  tar_files(
+  tar_files_input(
     p1_pest_lo_dbf,
     list.files(path_dbfs, full.names = T, pattern = 'L_')
   ),
   
   # Track changes in pesticide bins for pesticides of interest
-  tar_files(
+  tar_files_input(
     p1_pest_bin_csv,
     list_pest_csv(file_path = path_bins, 
                   poi = p1_pest_of_interest)
