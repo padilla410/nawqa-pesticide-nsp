@@ -44,4 +44,4 @@ _targets
 1_fetch/in/*
 !/1_fetch/in/maps/*.placeholder
 draft_docs/
-
+*.Rproj
