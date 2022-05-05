@@ -4,34 +4,34 @@ p1_targets_list <- list(
   # Track data -----------------------
   tar_target(
     p1_pest_of_interest,
-    generate_pest_vector(file_path = '1_fetch/in/maps/dbf19')
+    generate_pest_vector(file_path = path_dbfs)
   ),
   
   # Track changes in high estimate dbf files
   tar_files(
     p1_pest_hi_dbf,
-    list_pest_dbf(file_path = '1_fetch/in/maps/dbf19',
+    list_pest_dbf(file_path = path_dbfs,
                   est_type = 'High')
   ),
   
   # Track changes in low estimate dbf files
   tar_files(
     p1_pest_lo_dbf,
-    list_pest_dbf(file_path = '1_fetch/in/maps/dbf19', 
+    list_pest_dbf(file_path = path_dbfs, 
                   est_type = 'Low')
   ),
   
   # Track changes in pesticide bins for pesticides of interest
   tar_files(
     p1_pest_bin_csv,
-    list_pest_csv(file_path = '1_fetch/in/maps/bins', 
+    list_pest_csv(file_path = path_bins, 
                   poi = p1_pest_of_interest)
   ),
 
   # Track changes in pesticide labels for pesticides of interest
   tar_files(
     p1_pest_label_csv,
-    list_pest_csv(file_path = '1_fetch/in/maps/labels', 
+    list_pest_csv(file_path = path_labels, 
                   poi = p1_pest_of_interest)
   ),
   
