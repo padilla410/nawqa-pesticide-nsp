@@ -6,19 +6,31 @@
 #' @param label_df data.table, table of label values used to label grouped pesticide estimates (units of lb/mi^2)
 #' @param cellkg_column chr, name of the column in the pesticide dbf file that contains the cell data.
 #'
-create_pest_raster <- function(dbf_data, us_raster, bin_df, label_df, cellkg_column){
+create_pest_raster <- function(dbf_data, us_raster, bin_df, label_df, pest_name,
+                               cellkg_column, est_type){
   
   # unlist bin and label data.frames
-  bin <- unlist(bin_df)
-  label <- unlist(label_df)
+  bin <- unlist(bin_df[1, c(2:6)])
+  label <- unlist(label_df[1, c(2:5)])
+  
+  # build regex expression based on estimate type
+  out_file_name_builder <- ifelse(est_type == 'High', 'H_', 'L_')
   
   # check that the dbf data.frame has `ID` in the first column
   names(dbf_data)[1] <- 'ID'
   
-  # replace the default raster data.frame with the pesticide-specific data.frame
-  us_raster@data@attributes[[1]] <- dbf_data
+  # # THIS CODE SNIPPET DOESN'T WORK IN THE PIPELINE
+  # # replace the default raster data.frame with the pesticide-specific data.frame
+  # us_raster@data@attributes[[1]] <- dbf_data
+  # 
+  # cellkg <- raster::as.data.frame(us_raster, long = TRUE) %>% 
+  #   dplyr::pull({{ cellkg_column }})
   
-  cellkg <- as.data.frame(us_raster) %>% dplyr::pull({{cellkg_column}})
+  # # THIS SHOULD WORK
+  cellkg <- raster::as.data.frame(us_raster)
+  names(cellkg) <- 'ID' # rename field for left join with data
+  
+  cellkg <- dplyr::left_join(cellkg, dbf_data) %>% dplyr::pull({{ cellkg_column }})
   
   ## Assign levels
   lab_cell_lb_mi2 <- dplyr::case_when(
@@ -33,5 +45,12 @@ create_pest_raster <- function(dbf_data, us_raster, bin_df, label_df, cellkg_col
   
   pest_raster <- raster::setValues(us_raster, lab_cell_lb_mi2)
   
-  return(pest_raster)
+  # save output
+  file_out <- paste('2_process/out/', out_file_name_builder
+                    , pest_name, '.tif', sep = '')
+  
+  raster::writeRaster(pest_raster, file = file_out, 
+                      format = 'GTiff', overwrite = T)
+  
+  return(file_out)
 }
