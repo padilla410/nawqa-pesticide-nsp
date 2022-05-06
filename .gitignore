@@ -43,6 +43,6 @@ _targets
 */out/*
 */in/*
 draft_docs/
-*.Rproj
 !1_fetch/in/maps/.empty
 !2_process/out/.empty
+!3_visualize/out/.empty
