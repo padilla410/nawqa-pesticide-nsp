@@ -34,7 +34,7 @@ p1_targets_list <- list(
   # Track changes in human-readable pesticide names
   tar_files(
     p1_pest_map_names_txt,
-    list_pest_csv(file_path = path_base, full.names = T,  pattern = '.txt')
+    list.files(path = path_base, full.names = T,  pattern = '.txt')
   ),
   
   # Load data -----------------------
