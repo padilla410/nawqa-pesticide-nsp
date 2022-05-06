@@ -2,15 +2,15 @@
 #' 
 #' @param pest_raster_path chr, full path to a RasterLayer object for plotting
 #' @param chemical_name name of the the pesticide
-#' @param preliminary logical, are the results preliminary? Default is set to `FALSE`
-#' @param label_names chr vector, vector of break points used to generate legend labels. "No estimated use" is added internally.
+#' @param prelim logical, are the results preliminary? Default is set to `FALSE`
+#' @param label_df chr data.frame, `data.frame`` of break points used to generate legend labels. "No estimated use" is added internally.
 #' @param plot_yr chr, year associated with data
 #' @param label_colors chr vector, vector of HEX colors used to generate map and legend
 #' @param dpi int, dots per inch, used to scale final map resolution
 #' @param out_path chr, path for output files. Do not include file name. Must include trailing `/`
 #' 
 create_pest_map <- function(pest_raster_path, # may want to read in `file_path` instead of obj and chem name
-                       chemical_name, prelim = FALSE, label_names, plot_yr,
+                       chemical_name, prelim = FALSE, label_df, plot_yr,
                        label_colors = c('#fff29e', '#ffb94f', '#d66000', '#873600', '#ffffff'),
                        dpi = 300, out_path = '3_visualize/out/'
                        ) {
@@ -19,8 +19,7 @@ create_pest_map <- function(pest_raster_path, # may want to read in `file_path` 
   pest_raster <- raster::raster(pest_raster_path)
   
   # prep state map
-  state_map <- maps::map('state')
-  state_map <- sf::st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+  state_map <- sf::st_as_sf(maps::map('state', plot = FALSE, fill = TRUE))
   
   # prep labels
   prelim_data <- ifelse(prelim == TRUE, '(Preliminary)', '')
@@ -48,8 +47,8 @@ create_pest_map <- function(pest_raster_path, # may want to read in `file_path` 
           legend.key = element_rect(colour = 'black')) 
   
   # save output
-  dpi <- 300
-  chem_label <- stringr::str_extract(pest_raster_path, '(?:[A-Z]_[A-Z]+)')
+  chem_label <- stringr::str_extract(pest_raster_path, 
+                                     '(?<=t\\/)(.*?)(?=\\.)') # grab everything after the `t/` and before `.`
   out_file <- paste(out_path, chem_label, '_', plot_yr, '.png', sep = '')
   ggsave(filename = out_file, plot = plt,
          width = 10 * dpi, height = 7.5 * dpi, units = 'px', dpi = dpi)
