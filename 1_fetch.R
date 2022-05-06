@@ -66,5 +66,13 @@ p1_targets_list <- list(
                     col_types = rep('c', 4), id = 'source'),
     pattern = map(p1_pest_label_csv),
     iteration = 'list'
+  ),
+  
+  # Load human-readable pesticide names for plotting in 3_visualize
+  tar_target(
+    p1_pest_map_names,
+    readr::read_delim(paste0(path_base, 'pesticide_names.txt'), delim = '\t') %>% 
+      filter(cmpnd %in% p1_pest_of_interest) %>% 
+      pull(Compound)
   )
 )

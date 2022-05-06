@@ -19,9 +19,10 @@ source('2_process.R')
 
 
 # define input file paths
-path_dbfs <- c('1_fetch/in/maps/dbf19')
-path_bins <- c('1_fetch/in/maps/bins')
-path_labels <- c('1_fetch/in/maps/labels')
+path_base <- c('1_fetch/in/maps/')
+path_dbfs <- paste0(path_base, 'dbf19')
+path_bins <- paste0(path_base, 'bins')
+path_labels <- paste0(path_base, 'labels')
 
 # define plot variables
 year <- '2019'

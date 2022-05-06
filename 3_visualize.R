@@ -13,9 +13,8 @@ p3_targets_list <- list(
     p2_pest_lo_map,
     create_pest_map(
       pest_raster_path = p2_pest_lo_raster,
-      chemical_name = 'tmp',
+      chemical_name = p1_pest_map_names,
       preliminary = T,
-      est_type = 'Low',
       label_names = p1_pest_label_data
       ),
     format = 'file',
