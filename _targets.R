@@ -27,5 +27,5 @@ path_labels <- paste0(path_base, 'labels')
 # define plot variables
 year <- '2019'
 
-c(p1_targets_list, p2_targets_list) #, p3_targets_list)
+c(p1_targets_list, p2_targets_list, p3_targets_list)
 
