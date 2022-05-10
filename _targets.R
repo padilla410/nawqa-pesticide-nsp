@@ -13,15 +13,19 @@ options(tidyverse.quiet = TRUE)
 
 source('1_fetch.R')
 source('2_process.R')
-# source('3_visualize.R')
+source('3_visualize.R')
 
-# tar_option_set(debug = "p1_pest_bin_csv")
-# year <- '2019'
+# tar_option_set(debug = "p2_pest_lo_raster")
+
 
 # define input file paths
-path_dbfs <- c('1_fetch/in/maps/dbf19')
-path_bins <- c('1_fetch/in/maps/bins')
-path_labels <- c('1_fetch/in/maps/labels')
+path_base <- c('1_fetch/in/maps/')
+path_dbfs <- paste0(path_base, 'dbf19')
+path_bins <- paste0(path_base, 'bins')
+path_labels <- paste0(path_base, 'labels')
 
-c(p1_targets_list, p2_targets_list)
+# define plot variables
+year <- '2019'
+
+c(p1_targets_list, p2_targets_list, p3_targets_list)
 
