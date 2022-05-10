@@ -19,10 +19,10 @@ create_pest_raster <- function(dbf_data, us_raster, bin_df, label_df, pest_name,
   # check that the dbf data.frame has `ID` in the first column
   names(dbf_data)[1] <- 'ID'
   
-  cellkg <- raster::as.data.frame(us_raster)
-  names(cellkg) <- 'ID' # rename field for left join with data
-  
-  cellkg <- dplyr::left_join(cellkg, dbf_data) %>% dplyr::pull({{ cellkg_column }})
+  cellkg2 <- as.data.frame(us_raster) %>%
+    dplyr::rename(ID = 1) %>%
+    dplyr::left_join(dbf_data) %>% 
+    dplyr::pull({{ cellkg_column }})
   
   ## Assign levels
   lab_cell_lb_mi2 <- dplyr::case_when(
