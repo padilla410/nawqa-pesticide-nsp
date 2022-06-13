@@ -15,9 +15,6 @@ source('1_fetch.R')
 source('2_process.R')
 source('3_visualize.R')
 
-# tar_option_set(debug = "p2_pest_lo_raster")
-
-
 # define input file paths
 path_base <- c('1_fetch/in/maps/')
 path_dbfs <- paste0(path_base, 'dbf19')
